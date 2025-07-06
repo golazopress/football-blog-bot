@@ -1,0 +1,7 @@
+services:
+  - type: cron
+    name: daily-football-blog
+    runtime: python
+    schedule: "0 1 * * *"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python blogbot.py"
