@@ -11,18 +11,49 @@ OPENROUTER_API_KEY = os.getenv("sk-or-v1-d4b7383246651d2d30b9a645d84b3f5da75f116
 CUSTOM_PROMPT = os.getenv("CUSTOM_PROMPT", "Write a 600-word blog post on the football topic: {topic} from the perspective of a real human who has lived through it. Use a conversational tone, personal anecdotes, emotional reflections, and occasional informal language. Include natural pauses, varied sentence lengths, and some imperfections or hesitations like real human writing. Avoid sounding robotic or overly polished—make it feel raw, passionate, and real. Don't follow a rigid structure. Prioritize authenticity and relatability.")
 
 def get_trending_football_topics():
-    pytrends = TrendReq(hl='en-US', tz=360)
-    pytrends.build_payload(kw_list=["football"], cat=0, timeframe='now 1-d')
     try:
+        # Use short, high-value keywords to get broader trends
+        pytrends = TrendReq(hl='en-US', tz=360)
+        kw_list = [
+            "football", "Messi", "Cristiano", "Mbappé", "Yamal", "Ronaldo",
+            "Barcelona", "Real Madrid", "Liverpool", "Manchester United",
+            "Haaland", "Van Dijk", "Arsenal", "PSG", "Chelsea", "Tottenham",
+            "Portugal", "Argentina", "France", "England", "Brazil"]
+        pytrends.build_payload(kw_list=kw_list, cat=0, timeframe='now 1-d')
         df = pytrends.related_queries()
-        top_related = df["football"]["top"]
-        if top_related is not None:
-            top_topics = [row["query"] for _, row in top_related.head(3).iterrows()]
+        
+        # Try to gather the first 3 real trending football queries
+        queries = []
+        for kw in kw_list:
+            top = df.get(kw, {}).get("top")
+            if top is not None and not top.empty:
+                for _, row in top.iterrows():
+                    queries.append(row["query"])
+            if len(queries) >= 3:
+                break
+        
+        if queries:
+            return queries[:3]
         else:
-            raise Exception("No related topics")
-    except:
-        top_topics = ["Latest Football News", "Football Transfer Rumors", "Match Highlights"]
-    return top_topics
+            raise Exception("No trends found.")
+
+    except Exception as e:
+        print(f"[pytrends failed] {e}")
+        return ["Cristiano Ronaldo Transfer Update",
+            "Lionel Messi Inter Miami Performance",
+            "Kylian Mbappé Real Madrid Transfer News",
+            "Lamine Yamal Spain Breakout Star",
+            "Virgil van Dijk Defensive Stats",
+            "Erling Haaland Premier League Goals",
+            "Real Madrid Controversy and Off-Pitch Drama",
+            "FC Barcelona Squad News",
+            "Liverpool Injury News",
+            "Manchester United Transfer Rumors",
+            "Portugal Euro 2024 Chances",
+            "Argentina World Cup Preparations",
+            "Champions League Knockout Predictions",
+            "Football Transfer Rumors",
+            "Top 5 Goals of the Week"]
 
 def generate_blog(topic):
     prompt = CUSTOM_PROMPT.replace("{topic}", topic)
