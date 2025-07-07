@@ -17,31 +17,33 @@ def get_trending_football_news():
     headlines = [entry.title for entry in feed.entries[:3]]
     return headlines
 
+import requests
+
+import requests
+
 def generate_blog(topic):
     prompt = f"""
-    Write a 300-word blog post on the football topic: "{topic}" from the perspective of a real human who has lived through it. Use a conversational tone, personal anecdotes, emotional reflections, and occasional informal language. Include natural pauses, varied sentence lengths, and some imperfections or hesitations like real human writing. Avoid sounding robotic or overly polished—make it feel raw, passionate, and real. Don't follow a rigid structure. Prioritize authenticity and relatability.
-    
-    Make it engaging, informative, and suitable for football fans. Avoid fake news. Be clear.
+    Write a football blog post (around 200 words) about this topic: "{topic}"
+
+    Write it from the perspective of a real human who has lived through it.
+    Use a conversational tone, personal anecdotes, emotional reflections, and occasional informal language.
+    Include natural pauses, varied sentence lengths, and some imperfections or hesitations like real human writing.
+    Avoid sounding robotic or overly polished—make it feel raw, passionate, and real.
+    Don't follow a rigid structure. Prioritize authenticity and relatability.
     """
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=300,
-        temperature=0.7
-    )
-    return response.choices[0].message.content.strip()
 
-def send_to_telegram(message):
-    bot = Bot(token=TELEGRAM_BOT_TOKEN)
-    bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+    headers = {
+        "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
+        "Content-Type": "application/json"
+    }
 
-def run_blog_bot():
-    topics = get_trending_football_news()
-    for topic in topics:
-        blog = generate_blog(topic)
-        full_message = f"{topic}\n\n{blog}"
-        send_to_telegram(full_message)
+    data = {
+        "model": "openai/gpt-3.5-turbo",
+        "messages": [
+            {"role": "user", "content": prompt}
+        ]
+    }
 
-if __name__ == "__main__":
-    print(f"[{datetime.now()}] Running blog bot...")
-    run_blog_bot()
+    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+    result = response.json()
+    return result["choices"][0]["message"]["content"].strip()
