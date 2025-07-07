@@ -3,8 +3,9 @@
 import os
 import requests
 import feedparser
+from dotenv import load_dotenv
 
-#  Remove dotenv – not used in cloud (Render handles env vars)
+load_dotenv()
 
 # Load environment variables
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -59,9 +60,15 @@ def send_to_telegram(message):
     }
     requests.post(url, data=data)
 
+# ✅ This is where you place the corrected and debugged run_blog_bot()
 def run_blog_bot():
-    print("⚽ Running Football BlogBot...")
+    print("Running Football BlogBot...")
     topics = get_trending_topics()
     for topic in topics:
         blog = generate_blog(topic)
-        send_to_telegram(f" Topic: {topic}\n\n{blog}")
+
+        # Debug print statements
+        print(f"Topic: {topic}")
+        print(f"Blog content:\n{blog}\n")
+
+        send_to_telegram(f"Topic: {topic}\n\n{blog}")
