@@ -1,24 +1,26 @@
 from flask import Flask
 import threading
+import schedule
 import time
-import datetime
-import subprocess
+from blogbot import run_blog_bot
 
 app = Flask(__name__)
 
-def run_bot_daily():
-    while True:
-        now = datetime.datetime.utcnow()
-        if now.hour == 1 and now.minute == 0:  # 6:30 AM IST = 1:00 AM UTC
-            print("Running blogbot.py at 6:30 AM IST...")
-            subprocess.call(["python", "blogbot.py"])
-            time.sleep(60)  # Avoid multiple runs in one minute
-        time.sleep(20)  # Check every 20 seconds
-
 @app.route('/')
 def home():
-    return "Football Blog Bot is running."
+    return "Football BlogBot is running on Render!"
 
-if __name__ == '__main__':
-    threading.Thread(target=run_bot_daily, daemon=True).start()
-    app.run(host='0.0.0.0', port=10000)
+# ✅ Function to run the scheduler in a thread
+def run_scheduler():
+    schedule.every().day.at("06:30").do(run_blog_bot)  # IST 6:30 AM = UTC 1:00 AM
+
+    while True:
+        schedule.run_pending()
+        time.sleep(30)
+
+if __name__ == "__main__":
+    # Start the scheduler in a background thread
+    threading.Thread(target=run_scheduler).start()
+
+    # Start Flask app to keep port open (Render needs this)
+    app.run(host="0.0.0.0", port=10000)
