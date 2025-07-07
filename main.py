@@ -17,7 +17,6 @@ def job():
 schedule.every().day.at("01:00").do(job)  # 6:30 AM IST = 1:00 UTC
 
 def run_scheduler():
-    run_blog_bot()
     while True:
         schedule.run_pending()
         time.sleep(60)
