@@ -4,4 +4,4 @@ requests
 feedparser
 python-dotenv
 python-telegram-bot
-google-generativeai
+google-generativeai>=0.3.2
