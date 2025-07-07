@@ -1,7 +1,6 @@
 flask
-requests
 schedule
-python-telegram-bot
-python-dotenv
+requests
 feedparser
-
+python-dotenv
+python-telegram-bot
