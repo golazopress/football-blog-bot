@@ -1,65 +1,64 @@
-# blogbot.py
-
 import os
 import requests
 import feedparser
-from dotenv import load_dotenv
 import google.generativeai as genai
+from dotenv import load_dotenv
+from datetime import datetime
+
+load_dotenv()
 
 # Load environment variables
-load_dotenv()
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Configure Gemini API
+if not GOOGLE_API_KEY:
+    raise ValueError("Missing GOOGLE_API_KEY in environment variables.")
+
 genai.configure(api_key=GOOGLE_API_KEY)
+model = genai.GenerativeModel(model_name="gemini-pro")
 
-# Short football-related keywords to find trending topics
-KEYWORDS = [
-    "Messi", "Ronaldo", "Mbappe", "Haaland", "Barcelona", "Real Madrid",
-    "Liverpool", "Arsenal", "Manchester United", "PSG", "Champions League",
-    "Premier League", "La Liga", "Bundesliga", "Cristiano", "Argentina",
-    "Portugal", "Yamal", "Van Dijk", "World Cup", "UEFA", "Controversy"
-]
-
-# Fetch trending football news topics using Google News RSS
-def get_trending_topics():
+# Fetch top football topics from Google News RSS
+def get_top_football_topics():
+    url = "https://news.google.com/rss/search?q=football&hl=en-IN&gl=IN&ceid=IN:en"
+    feed = feedparser.parse(url)
     topics = []
-    for keyword in KEYWORDS:
-        url = f"https://news.google.com/rss/search?q={keyword}+football&hl=en-IN&gl=IN&ceid=IN:en"
-        feed = feedparser.parse(url)
-        if feed.entries:
-            entry = feed.entries[0]
-            topics.append(entry.title)
-        if len(topics) >= 3:
-            break
+    for entry in feed.entries[:3]:
+        topics.append({"title": entry.title, "link": entry.link})
     return topics
 
-# Generate blog content using Gemini
+# Generate blog using Gemini API
 def generate_blog(topic):
     try:
-        model = genai.GenerativeModel("gemini-pro")
-        prompt = f"Write an engaging, detailed football blog about this topic from a human perspective:\n\n{topic}"
+        prompt = f"Write an engaging, detailed football blog about this topic:\n\n{topic}"
         response = model.generate_content(prompt)
         return response.text.strip() if response.text else "Blog generation failed. Empty response."
     except Exception as e:
         return f"Error generating blog for {topic}: {str(e)}"
 
-# Send message to Telegram
-def send_to_telegram(message):
+# Send blog to Telegram
+def send_to_telegram(text):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    data = {
+    payload = {
         "chat_id": TELEGRAM_CHAT_ID,
-        "text": message
+        "text": text,
+        "parse_mode": "HTML"
     }
-    requests.post(url, data=data)
+    try:
+        response = requests.post(url, data=payload)
+        print(f"Telegram Response {response.status_code}: {response.text}")
+    except Exception as e:
+        print(f"Telegram Error: {str(e)}")
 
-# Main bot runner
+# Main runner
 def run_blog_bot():
-    print("Running Football BlogBot...")
-    topics = get_trending_topics()
+    print("\n\nRunning Football BlogBot...")
+    topics = get_top_football_topics()
     for topic in topics:
-        blog = generate_blog(topic)
-        full_message = f"📝 Topic: {topic}\n\n{blog}"
-        send_to_telegram(full_message)
+        blog = generate_blog(topic["title"])
+        message = f"\ud83d\udccd <b>Topic:</b> {topic['title']}\n{topic['link']}\n\n<pre>{blog}</pre>"
+        send_to_telegram(message)
+
+if __name__ == "__main__":
+    run_blog_bot()
