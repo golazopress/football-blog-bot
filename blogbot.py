@@ -1,23 +1,21 @@
-# blogbot.py
-
 import os
 import requests
 import feedparser
-import google.generativeai as genai
 from dotenv import load_dotenv
+import google.generativeai as genai
 
-# Load environment variables
 load_dotenv()
 
+# Load environment variables
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-CUSTOM_PROMPT = os.getenv("CUSTOM_PROMPT")
+CUSTOM_PROMPT = os.getenv("CUSTOM_PROMPT", "Write an engaging football blog post about the topic.")
 
 # Configure Gemini
 genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel("gemini-pro")
 
-# Football-related keywords for trending topics
 KEYWORDS = [
     "Messi", "Ronaldo", "Mbappe", "Haaland", "Barcelona", "Real Madrid", "Liverpool",
     "Arsenal", "Manchester United", "PSG", "Champions League", "Premier League",
@@ -39,8 +37,7 @@ def get_trending_topics():
 
 def generate_blog(topic):
     try:
-        model = genai.GenerativeModel("gemini-pro")
-        prompt = f"{CUSTOM_PROMPT}\n\nWrite a blog about this trending football topic:\n{topic}"
+        prompt = f"{CUSTOM_PROMPT}\n\nTopic: {topic}"
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
