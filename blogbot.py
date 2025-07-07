@@ -19,8 +19,7 @@ def get_trending_football_news():
 
 def generate_blog(topic):
     prompt = f"""
-    Write a 200-word football blog article in English about the following trending topic:
-    "{topic}"
+    Write a 300-word blog post on the football topic: "{topic}" from the perspective of a real human who has lived through it. Use a conversational tone, personal anecdotes, emotional reflections, and occasional informal language. Include natural pauses, varied sentence lengths, and some imperfections or hesitations like real human writing. Avoid sounding robotic or overly polished—make it feel raw, passionate, and real. Don't follow a rigid structure. Prioritize authenticity and relatability.
     
     Make it engaging, informative, and suitable for football fans. Avoid fake news. Be clear.
     """
