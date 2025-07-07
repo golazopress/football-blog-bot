@@ -58,7 +58,8 @@ def send_to_telegram(message):
         "chat_id": TELEGRAM_CHAT_ID,
         "text": message
     }
-    requests.post(url, data=data)
+    response = requests.post(url, data=data)
+    print("Telegram response:", response.status_code, response.text)  # 🛠️ ADDED LINE FOR DEBUGGING
 
 # ✅ This is where you place the corrected and debugged run_blog_bot()
 def run_blog_bot():
