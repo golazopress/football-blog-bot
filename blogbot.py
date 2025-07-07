@@ -8,14 +8,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Load environment variables
-TELEGRAM_BOT_TOKEN = os.getenv("7346083970:AAEpBsY0jY11ApZBHiOONeiLPDYHM7yyNTE")
-TELEGRAM_CHAT_ID = os.getenv("5044388916")
-OPENROUTER_API_KEY = os.getenv("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")
-CUSTOM_PROMPT = os.getenv("from the perspective of a real human who has lived through it.
-    Use a conversational tone, personal anecdotes, emotional reflections, and occasional informal language.
-    Include natural pauses, varied sentence lengths, and some imperfections or hesitations like real human writing.
-    Avoid sounding robotic or overly polished—make it feel raw, passionate, and real.
-    Don't follow a rigid structure. Prioritize authenticity and relatability")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+CUSTOM_PROMPT = os.getenv("CUSTOM_PROMPT")
 
 # Use short football-related keywords
 KEYWORDS = [
