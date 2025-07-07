@@ -1,48 +1,47 @@
 import os
 import requests
 import feedparser
-from dotenv import load_dotenv
 import google.generativeai as genai
+from dotenv import load_dotenv
 
 load_dotenv()
 
-# Load environment variables
+# Load keys
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-CUSTOM_PROMPT = os.getenv("CUSTOM_PROMPT", "Write an engaging football blog post about the topic.")
+CUSTOM_PROMPT = os.getenv("CUSTOM_PROMPT")
 
-# Configure Gemini
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-pro")
 
+# Keywords
 KEYWORDS = [
-    "Messi", "Ronaldo", "Mbappe", "Haaland", "Barcelona", "Real Madrid", "Liverpool",
-    "Arsenal", "Manchester United", "PSG", "Champions League", "Premier League",
-    "La Liga", "Bundesliga", "Cristiano", "Argentina", "Portugal", "Yamal", "Van Dijk",
-    "World Cup", "UEFA", "Barcelona fixture", "Real Madrid fixture", "Controversy"
+    "Messi", "Ronaldo", "Mbappe", "Haaland", "Real Madrid", "Barcelona", "PSG",
+    "Champions League", "Premier League", "World Cup", "La Liga"
 ]
 
+# Get trending topics
 def get_trending_topics():
     topics = []
     for keyword in KEYWORDS:
         url = f"https://news.google.com/rss/search?q={keyword}+football&hl=en-IN&gl=IN&ceid=IN:en"
         feed = feedparser.parse(url)
         if feed.entries:
-            entry = feed.entries[0]
-            topics.append(entry.title)
+            topics.append(feed.entries[0].title)
         if len(topics) >= 3:
             break
     return topics
 
+# Generate blog using Gemini
 def generate_blog(topic):
     try:
-        prompt = f"{CUSTOM_PROMPT}\n\nTopic: {topic}"
-        response = model.generate_content(prompt)
+        model = genai.GenerativeModel("gemini-pro")
+        response = model.generate_content([CUSTOM_PROMPT, f"Write a blog on: {topic}"])
         return response.text
     except Exception as e:
-        return f"Error generating blog for {topic}: {str(e)}"
+        return f"Error generating blog for {topic}: {e}"
 
+# Send to Telegram
 def send_to_telegram(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     data = {
@@ -51,6 +50,7 @@ def send_to_telegram(message):
     }
     requests.post(url, data=data)
 
+# Run the bot
 def run_blog_bot():
     print("Running Football BlogBot...")
     topics = get_trending_topics()
