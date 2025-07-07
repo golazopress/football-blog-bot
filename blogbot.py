@@ -3,9 +3,8 @@
 import os
 import requests
 import feedparser
-from dotenv import load_dotenv
 
-load_dotenv()
+#  Remove dotenv – not used in cloud (Render handles env vars)
 
 # Load environment variables
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -46,7 +45,7 @@ def generate_blog(topic):
         ]
     }
     response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
-    
+   
     if response.status_code == 200:
         return response.json()['choices'][0]['message']['content']
     else:
@@ -61,7 +60,7 @@ def send_to_telegram(message):
     requests.post(url, data=data)
 
 def run_blog_bot():
-    print(" Running Football BlogBot...")
+    print("⚽ Running Football BlogBot...")
     topics = get_trending_topics()
     for topic in topics:
         blog = generate_blog(topic)
