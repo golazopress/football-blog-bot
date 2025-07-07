@@ -3,17 +3,21 @@
 import os
 import requests
 import feedparser
+import google.generativeai as genai
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
 
-# Load environment variables
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 CUSTOM_PROMPT = os.getenv("CUSTOM_PROMPT")
 
-# Use short football-related keywords
+# Configure Gemini
+genai.configure(api_key=GEMINI_API_KEY)
+
+# Football-related keywords for trending topics
 KEYWORDS = [
     "Messi", "Ronaldo", "Mbappe", "Haaland", "Barcelona", "Real Madrid", "Liverpool",
     "Arsenal", "Manchester United", "PSG", "Champions League", "Premier League",
@@ -34,23 +38,13 @@ def get_trending_topics():
     return topics
 
 def generate_blog(topic):
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": "openrouter/auto",
-        "messages": [
-            {"role": "system", "content": CUSTOM_PROMPT},
-            {"role": "user", "content": f"Write a blog about: {topic}"}
-        ]
-    }
-    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
-   
-    if response.status_code == 200:
-        return response.json()['choices'][0]['message']['content']
-    else:
-        return f"Error generating blog for {topic}: {response.text}"
+    try:
+        model = genai.GenerativeModel("gemini-pro")
+        prompt = f"{CUSTOM_PROMPT}\n\nWrite a blog about this trending football topic:\n{topic}"
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"Error generating blog for {topic}: {str(e)}"
 
 def send_to_telegram(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -58,10 +52,8 @@ def send_to_telegram(message):
         "chat_id": TELEGRAM_CHAT_ID,
         "text": message
     }
-    response = requests.post(url, data=data)
-    print("Telegram response:", response.status_code, response.text)  # 🛠️ ADDED LINE FOR DEBUGGING
+    requests.post(url, data=data)
 
-# ✅ This is where you place the corrected and debugged run_blog_bot()
 def run_blog_bot():
     print("Running Football BlogBot...")
     topics = get_trending_topics()
