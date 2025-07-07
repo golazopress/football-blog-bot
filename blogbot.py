@@ -66,9 +66,4 @@ def run_blog_bot():
     topics = get_trending_topics()
     for topic in topics:
         blog = generate_blog(topic)
-
-        # Debug print statements
-        print(f"Topic: {topic}")
-        print(f"Blog content:\n{blog}\n")
-
         send_to_telegram(f"Topic: {topic}\n\n{blog}")
