@@ -25,4 +25,29 @@ Topic: {topic}
 def fetch_trending_football_topics():
     rss_url = "https://news.google.com/rss/search?q=football&hl=en-IN&gl=IN&ceid=IN:en"
     feed = feedparser.parse(rss_url)
-    top_topics = [entry.title for entry in
+    top_topics = [entry.title for entry in feed.entries[:3]]
+    return top_topics
+
+def generate_blog(topic):
+    try:
+        prompt = PROMPT_TEMPLATE.format(topic=topic)
+        response = model.generate_content(prompt)
+        return response.text.strip() if response.text else "Blog content could not be generated."
+    except Exception as e:
+        return f"Error generating blog for '{topic}': {str(e)}"
+
+def send_to_telegram(message):
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    data = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
+    response = requests.post(url, data=data)
+    if not response.ok:
+        print(f"Telegram Error: {response.text}")
+
+def run_blog_bot():
+    print("Running Football BlogBot...")
+    topics = fetch_trending_football_topics()
+    for topic in topics:
+        print(f"Processing topic: {topic}")
+        blog = generate_blog(topic)
+        full_message = f"Topic: {topic}\n\n{blog}"
+        send_to_telegram(full_message)
