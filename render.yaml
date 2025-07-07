@@ -1,8 +1,7 @@
 services:
   - type: web
-    name: football-blogbot
+    name: blogbot
     env: python
     plan: free
-    branch: main
+    buildCommand: pip install -r requirements.txt
     startCommand: python main.py
-    autoDeploy: true
