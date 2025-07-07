@@ -4,3 +4,4 @@ pytrends
 python-telegram-bot
 python-dotenv
 feedparser
+openai==0.28.1
