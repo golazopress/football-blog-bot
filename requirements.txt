@@ -1,5 +1,5 @@
 flask
-request
+requests
 python-telegram-bot
 python-dotenv
 feedparser
