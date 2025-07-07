@@ -12,6 +12,7 @@ def home():
     return "Football BlogBot is running!"
 
 def run_scheduler():
+    run_blog_bot()
     schedule.every().day.at("01:00").do(run_blog_bot)  # 6:30 AM IST
     while True:
         schedule.run_pending()
