@@ -12,7 +12,7 @@ def home():
     return "Football BlogBot is running!"
 
 def run_scheduler():
-    schedule.every().day.at("01:00").do(run_blog_bot)  # 6:30 AM IST = 1:00 AM UTC
+    schedule.every().day.at("01:00").do(run_blog_bot)  # 6:30 AM IST
     while True:
         schedule.run_pending()
         time.sleep(30)
@@ -20,6 +20,6 @@ def run_scheduler():
 if __name__ == "__main__":
     threading.Thread(target=run_scheduler, daemon=True).start()
 
-    # Bind to Render's required port
+    # ✅ Render requires this exact port binding
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
