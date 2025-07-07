@@ -1,26 +1,37 @@
+# GIMBOT OS2 — Automated Football Blog Bot using OpenRouter + Telegram + Google News
+
 import os
-import openai
+import requests
 import feedparser
-from datetime import datetime
 from dotenv import load_dotenv
-from telegram import Bot
+from datetime import datetime
 
-# Load environment variables
-load_dotenv()
-openai.api_key = os.getenv("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")
-TELEGRAM_BOT_TOKEN = os.getenv("7346083970:AAEpBsY0jY11ApZBHiOONeiLPDYHM7yyNTE")
-TELEGRAM_CHAT_ID = os.getenv("5044388916")
+load_dotenv()  # Loads variables from .env or Render's environment settings
 
-def get_trending_football_news():
-    url = "https://news.google.com/rss/search?q=football"
-    feed = feedparser.parse(url)
-    headlines = [entry.title for entry in feed.entries[:3]]
-    return headlines
+# ✅ Fetch top 3 trending football topics from Google News RSS
+def get_trending_football_topics():
+    query_keywords = [
+        "football", "soccer", "Barcelona", "Real Madrid", "Cristiano Ronaldo", "Messi",
+        "Mbappe", "Haaland", "Premier League", "Champions League", "Euro 2024",
+        "Liverpool", "Manchester United", "Argentina", "Portugal", "France",
+        "La Liga", "Serie A", "Bundesliga", "transfer news", "fixtures", "controversy"
+    ]
 
-import requests
+    topic_results = []
 
-import requests
+    for keyword in query_keywords:
+        url = f"https://news.google.com/rss/search?q={keyword}+when:1d&hl=en-IN&gl=IN&ceid=IN:en"
+        feed = feedparser.parse(url)
 
+        for entry in feed.entries:
+            topic_results.append(entry.title)
+
+        if len(topic_results) >= 3:
+            break
+
+    return topic_results[:3]
+
+# ✅ Generate blog content using OpenRouter with human-style writing prompt
 def generate_blog(topic):
     prompt = f"""
     Write a football blog post (around 200 words) about this topic: "{topic}"
