@@ -1,5 +1,5 @@
 flask
-openai
+request
 python-telegram-bot
 python-dotenv
 feedparser
