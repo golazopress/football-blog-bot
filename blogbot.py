@@ -11,7 +11,7 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 RSS_FEED_URL = "https://news.google.com/rss/search?q=football&hl=en-IN&gl=IN&ceid=IN:en"
 
-def get_trending_topics(max_articles=3):
+def get_trending_topics(max_articles=7):
     feed = feedparser.parse(RSS_FEED_URL)
     entries = feed.entries[:max_articles]
     return [entry.title + " - " + entry.source.title for entry in entries]
