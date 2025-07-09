@@ -15,6 +15,7 @@ def job():
 
 # Schedule daily at 6:30 AM IST
 schedule.every().day.at("01:00").do(job)  # 6:30 AM IST = 1:00 UTC
+schedule.every().day.at("13:00").do(job)
 
 def run_scheduler():
     run_blog_bot()
