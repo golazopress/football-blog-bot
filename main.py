@@ -19,6 +19,7 @@ schedule.every().day.at("13:00").do(job)
 schedule.every().day.at("05:00").do(job)
 
 def run_scheduler():
+    run_blog_bot()
     while True:
         schedule.run_pending()
         time.sleep(60)
