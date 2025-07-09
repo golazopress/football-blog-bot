@@ -16,6 +16,7 @@ def job():
 # Schedule at 6:30 AM and 6:30 PM IST = 1:00 & 13:00 UTC
 schedule.every().day.at("01:00").do(job)
 schedule.every().day.at("13:00").do(job)
+schedule.every().day.at("05:00").do(job)
 
 def run_scheduler():
     while True:
