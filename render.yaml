@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: football-blogbot
+    name: football-blog-auto
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: python main.py
@@ -9,7 +9,14 @@ services:
         sync: false
       - key: TELEGRAM_CHAT_ID
         sync: false
-      - key: OPENROUTER_API_KEY
+
+  - type: worker
+    name: football-blog-manual
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot_handler.py
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
         sync: false
-      - key: CUSTOM_PROMPT
+      - key: TELEGRAM_CHAT_ID
         sync: false
